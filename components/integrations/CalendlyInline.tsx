@@ -3,10 +3,18 @@
 import { useEffect, useRef } from "react";
 
 type Props = {
-  baseUrl: string;         // ex: https://calendly.com/rayanmabrouk55/mabai-rdv
-  fixedHeight: number;     // hauteur EXACTE du widget (px)
-  scale?: number;          // 1 = taille normale
-  hideBranding?: boolean;  // masque le ruban “Alimenté par Calendly”
+  /** ex: https://calendly.com/rayanmabrouk55/mabai-rdv */
+  baseUrl: string;
+  /** hauteur EXACTE du widget (px) dans la page */
+  fixedHeight: number;
+  /** 1 = taille normale */
+  scale?: number;
+  /** masque le ruban “Alimenté par Calendly” */
+  hideBranding?: boolean;
+  /** applique un filtre dark/inversion (utile pour thèmes sombres) */
+  forceDarkHack?: boolean;
+  /** rotation de teinte en degrés (utilisée si forceDarkHack est true) */
+  hueRotateDeg?: number;
   containerClassName?: string;
 };
 
@@ -15,12 +23,14 @@ export default function CalendlyInlineFixed({
   fixedHeight,
   scale = 1,
   hideBranding = true,
+  forceDarkHack = true,
+  hueRotateDeg = 205,
   containerClassName = "",
 }: Props) {
-  const ref = useRef<HTMLDivElement | null>(null);
+  const targetRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // état de verrouillage (écran d’accueil)
+  // état de verrouillage (écran d’accueil Calendly)
   const firstStepLockRef = useRef<boolean>(true);
   const rafRef = useRef<number | null>(null);
 
@@ -28,12 +38,12 @@ export default function CalendlyInlineFixed({
   const onWheel = (e: WheelEvent) => {
     if (!firstStepLockRef.current) return;
     e.preventDefault();
-    if (containerRef.current) containerRef.current.scrollTop = 0;
+    containerRef.current && (containerRef.current.scrollTop = 0);
   };
   const onTouchMove = (e: TouchEvent) => {
     if (!firstStepLockRef.current) return;
     e.preventDefault();
-    if (containerRef.current) containerRef.current.scrollTop = 0;
+    containerRef.current && (containerRef.current.scrollTop = 0);
   };
   const onScroll = () => {
     if (!firstStepLockRef.current) return;
@@ -64,9 +74,9 @@ export default function CalendlyInlineFixed({
     const el = containerRef.current;
     if (!el) return;
     el.style.overflowY = "auto";
-    el.removeEventListener("wheel", onWheel as any);
-    el.removeEventListener("touchmove", onTouchMove as any);
-    el.removeEventListener("scroll", onScroll as any);
+    el.removeEventListener("wheel", onWheel);
+    el.removeEventListener("touchmove", onTouchMove);
+    el.removeEventListener("scroll", onScroll);
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -74,6 +84,8 @@ export default function CalendlyInlineFixed({
   };
 
   useEffect(() => {
+    if (typeof window === "undefined") return; // SSR guard
+
     // CSS Calendly (une seule fois)
     if (!document.querySelector('link[data-calendly="css"]')) {
       const link = document.createElement("link");
@@ -84,13 +96,23 @@ export default function CalendlyInlineFixed({
     }
 
     const init = () => {
-      // @ts-ignore
-      const Calendly = (window as any).Calendly;
-      if (!Calendly?.initInlineWidget || !ref.current) return false;
+      const w = window as unknown as {
+        Calendly?: {
+          initInlineWidget?: (opts: {
+            url: string;
+            parentElement: HTMLElement;
+            prefill?: Record<string, unknown>;
+            utm?: Record<string, unknown>;
+          }) => void;
+        };
+      };
 
-      ref.current.innerHTML = "";
+      const Calendly = w.Calendly;
+      if (!Calendly?.initInlineWidget || !targetRef.current) return false;
 
-      // URL avec nos couleurs (inchangé)
+      targetRef.current.innerHTML = "";
+
+      // URL avec nos couleurs
       const url = (() => {
         try {
           const u = new URL(baseUrl);
@@ -99,10 +121,8 @@ export default function CalendlyInlineFixed({
           u.searchParams.set("primary_color", "7C3AED");
           u.searchParams.set("hide_event_type_details", "1");
           u.searchParams.set("hide_gdpr_banner", "1");
-          if (typeof window !== "undefined") {
-            u.searchParams.set("embed_domain", window.location.hostname);
-            u.searchParams.set("embed_type", "Inline");
-          }
+          u.searchParams.set("embed_type", "Inline");
+          u.searchParams.set("embed_domain", window.location.hostname);
           return u.toString();
         } catch {
           return baseUrl;
@@ -111,14 +131,14 @@ export default function CalendlyInlineFixed({
 
       Calendly.initInlineWidget({
         url,
-        parentElement: ref.current,
+        parentElement: targetRef.current,
         prefill: {},
         utm: {},
       });
 
       // util
       const getIframe = () =>
-        (ref.current?.querySelector("iframe") as HTMLIFrameElement | null) || null;
+        (targetRef.current?.querySelector("iframe") as HTMLIFrameElement | null) ?? null;
 
       // Style de base (appliqué/re-appliqué)
       const applyBaseStyles = () => {
@@ -135,8 +155,12 @@ export default function CalendlyInlineFixed({
         iframe.style.transformOrigin = "top center";
         iframe.style.transform = `scale(${scale})`;
 
-        // Force dark + accents violets (inchangé)
-        iframe.style.filter = "invert(1) hue-rotate(205deg) saturate(1.05) contrast(0.95)";
+        // Force dark + accents (configurable)
+        if (forceDarkHack) {
+          iframe.style.filter = `invert(1) hue-rotate(${hueRotateDeg}deg) saturate(1.05) contrast(0.95)`;
+        } else {
+          iframe.style.filter = "";
+        }
 
         return true;
       };
@@ -148,46 +172,43 @@ export default function CalendlyInlineFixed({
           obs.disconnect();
         }
       });
-      obs.observe(ref.current, { childList: true, subtree: true });
+      obs.observe(targetRef.current, { childList: true, subtree: true });
 
       // Gestion des étapes Calendly
       const onMsg = (e: MessageEvent) => {
+        // on applique les styles régulièrement (idempotent)
         applyBaseStyles();
 
         try {
-          const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
-          const ev = data?.event as string | undefined;
+          const data: any = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+          const ev: string | undefined = data?.event;
           const iframe = getIframe();
           if (!iframe || !containerRef.current) return;
 
-          // --- Re-lock si on revient sur l'accueil ---
+          // Retour à l’accueil → re-lock + hauteur = fenêtre
           if (ev === "calendly.event_type_viewed" || ev === "calendly.profile_page_viewed") {
             enableFirstStepLock();
-            // à l’accueil, l’iframe = hauteur fenêtre (pas de scroll interne)
             const h = Math.ceil(fixedHeight / (scale || 1));
             iframe.style.height = `${h}px`;
             return;
           }
 
-          // --- Déverrouille dès qu’on quitte l’accueil ---
+          // Toute autre étape → déverrouille
           if (ev && ev.startsWith("calendly.")) {
-            // tout event Calendly autre que les 2 ci-dessus => on passe en scrollable
             if (ev !== "calendly.event_type_viewed" && ev !== "calendly.profile_page_viewed") {
               disableFirstStepLock();
-              // grande hauteur pour permettre le scroll même si Calendly ne poste pas frameHeight tout de suite
               const big = Math.ceil(2400 / (scale || 1));
               const current = parseInt(iframe.style.height || "0", 10) || 0;
               if (big > current) iframe.style.height = `${big}px`;
             }
           }
 
-          // --- Si Calendly envoie sa vraie hauteur ---
+          // Hauteur réelle envoyée par Calendly
           if (ev === "calendly.frameHeight" && typeof data?.payload?.height === "number") {
-            const raw = data.payload.height;
+            const raw = data.payload.height as number;
             const inner = Math.ceil(raw / (scale || 1));
             iframe.style.height = `${inner}px`;
 
-            // Si la hauteur réelle dépasse la fenêtre visible → on est clairement hors accueil
             if (raw * (scale || 1) > fixedHeight) {
               disableFirstStepLock();
             }
@@ -203,8 +224,12 @@ export default function CalendlyInlineFixed({
       };
     };
 
-    // Script Calendly
-    if (!document.querySelector('script[data-calendly="js"]')) {
+    // Script Calendly (une seule fois)
+    const existingScript = document.querySelector('script[data-calendly="js"]') as
+      | HTMLScriptElement
+      | null;
+
+    if (!existingScript) {
       const s = document.createElement("script");
       s.src = "https://assets.calendly.com/assets/external/widget.js";
       s.async = true;
@@ -212,7 +237,12 @@ export default function CalendlyInlineFixed({
       s.onload = () => init();
       document.body.appendChild(s);
     } else {
-      init();
+      // si déjà chargé, init immédiatement (ou à la fin de chargement si en cours)
+      if ((existingScript as any).loaded) {
+        init();
+      } else {
+        existingScript.addEventListener("load", () => init(), { once: true });
+      }
     }
 
     // cleanup global
@@ -220,19 +250,19 @@ export default function CalendlyInlineFixed({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       const el = containerRef.current;
       if (el) {
-        el.removeEventListener("wheel", onWheel as any);
-        el.removeEventListener("touchmove", onTouchMove as any);
-        el.removeEventListener("scroll", onScroll as any);
+        el.removeEventListener("wheel", onWheel);
+        el.removeEventListener("touchmove", onTouchMove);
+        el.removeEventListener("scroll", onScroll);
       }
     };
-  }, [baseUrl, fixedHeight, scale]);
+  }, [baseUrl, fixedHeight, scale, forceDarkHack, hueRotateDeg]);
 
   return (
     <div
       ref={containerRef}
       className={`relative ${containerClassName}`}
       style={{
-        height: fixedHeight,       // ← règle la hauteur depuis la page
+        height: fixedHeight, // ← règle la hauteur depuis la page
         minWidth: 0,
         // le JS gère overflowY: hidden/auto selon l’étape
         overflow: "hidden",
@@ -240,7 +270,7 @@ export default function CalendlyInlineFixed({
       }}
     >
       {/* Conteneur cible pour Calendly */}
-      <div ref={ref} className="w-full h-full" />
+      <div ref={targetRef} className="w-full h-full" />
 
       {/* Cache visuel du ruban (en haut-droite) */}
       {hideBranding && (
@@ -255,7 +285,6 @@ export default function CalendlyInlineFixed({
             zIndex: 10,
             pointerEvents: "auto",
           }}
-          title=""
         />
       )}
     </div>
