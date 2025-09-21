@@ -3,8 +3,6 @@
   publish = ".next"
 
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
 
 
 # (Optionnel mais utile) Autoriser Calendly côté prod
