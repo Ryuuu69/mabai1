@@ -9,9 +9,9 @@ import * as React from "react";
 type ButtonBaseProps = React.ComponentProps<typeof Button>;
 
 interface GradientButtonProps extends Omit<ButtonBaseProps, "variant"> {
-  /** Garde tes variantes visuelles (différentes de celles du Button shadcn) */
+  /** Variantes visuelles spécifiques au gradient */
   variant?: "primary" | "secondary";
-  /** Déjà présent dans ButtonBaseProps, mais on le rend explicite ici */
+  /** Laisse passer Link via Radix Slot */
   asChild?: boolean;
 }
 
@@ -25,7 +25,6 @@ export const GradientButton = React.forwardRef<HTMLButtonElement, GradientButton
       >
         <Button
           ref={ref}
-          /** on propage asChild vers le Button shadcn (Radix Slot) */
           asChild={asChild}
           size={size}
           className={cn(
