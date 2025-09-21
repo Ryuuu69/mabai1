@@ -9,4 +9,5 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://assets.calendly.com; connect-src 'self' https://calendly.com https://assets.calendly.com; img-src 'self' data: https://assets.calendly.com; style-src 'self' 'unsafe-inline' https://assets.calendly.com; frame-src https://calendly.com https://assets.calendly.com;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://assets.calendly.com; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://assets.calendly.com; frame-src https://calendly.com https://assets.calendly.com;"
+
