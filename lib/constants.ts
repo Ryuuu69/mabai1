@@ -33,11 +33,12 @@ export const COMPANY_INFO = {
 };
 
 // Events de tracking
-export const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', eventName, parameters);
+export const trackEvent = (eventName: string, parameters?: Record<string, unknown>) => {
+  if (typeof window !== "undefined" && typeof window.gtag === "function") {
+    window.gtag("event", eventName, parameters ?? {});
   }
 };
+
 
 export const TRACKING_EVENTS = {
   CTA_RDV_CLICK: 'cta_rdv_click',
