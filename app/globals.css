@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Variables globales ===== */
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 11, 11, 16;
+  --background-end-rgb: 11, 11, 16;
+
+  /* Tailles de logo (MOBILE par défaut) */
+  --logo-header: 120px;   /* ← mets ici ta valeur mobile “OK” */
+  --logo-footer: 120px;   /* idem mobile */
+  --logo-popup: 320px;   /* popup plein écran mobile */
+}
+
+/* ===== Desktop (≥1024px) ===== */
+@media (min-width: 1024px) {
+  :root {
+    --logo-header: 140px;  /* ← taille PC du header */
+    --logo-footer: 100px;  /* ← taille PC du footer */
+    --logo-popup: 384px;  /* ← taille PC du popup */
+  }
+}
+
+/* ===== Design tokens (HSL pour Tailwind) ===== */
+@layer base {
+  :root {
+    --background: 210 11% 6%;
+    --foreground: 210 11% 96%;
+    --card: 215 16% 9%;
+    --card-foreground: 210 11% 96%;
+    --popover: 215 16% 9%;
+    --popover-foreground: 210 11% 96%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 210 11% 96%;
+    --secondary: 215 16% 15%;
+    --secondary-foreground: 210 11% 82%;
+    --muted: 215 16% 15%;
+    --muted-foreground: 215 13% 65%;
+    --accent: 215 16% 15%;
+    --accent-foreground: 210 11% 96%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 11% 96%;
+    --border: 215 16% 19%;
+    --input: 215 16% 19%;
+    --ring: 262 83% 58%;
+    --chart-1: 262 83% 58%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-[#0B0B10] text-white font-sans antialiased;
+  }
+}
+
+/* ===== Utilitaires accessibilité ===== */
+@layer utilities {
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-[#0B0B10];
+  }
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-violet-600 text-white px-4 py-2 rounded-md z-50;
+  }
+}
+
+/* ===== Animations ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-fade-in-up   { animation: fadeInUp 0.6s ease-out; }
+.animate-fade-in-left { animation: fadeInLeft 0.6s ease-out; }
+.animate-fade-in-right{ animation: fadeInRight 0.6s ease-out; }
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #0F1222; }
+::-webkit-scrollbar-thumb { background: #1E2235; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #7C3AED; }
+
+/* ===== Effets & composants ===== */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #8B5CF6 0%, #6D28D9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Calendly */
+.calendly-inline-widget {
+  min-height: 600px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Cartes */
+.card-hover { transition: all 0.3s ease; cursor: pointer; }
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
+}
+
+/* Badges */
+.badge-glow {
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.1);
+}
+
+/* Focus visible */
+.focus-visible:focus-visible {
+  outline: 2px solid #7C3AED;
+  outline-offset: 2px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .mobile-optimized { padding: 1rem; }
+}
+
+/* ===== Helpers logo =====
+   Les classes lisent UNIQUEMENT les variables ci-dessus.
+   → Mobile utilise :root (48/52/320)
+   → Desktop override via :root dans @media (56/64/384)
+*/
+.logo--header { height: var(--logo-header); width: auto; }
+.logo--footer { height: var(--logo-footer); width: auto; }
+.logo--popup  { height: var(--logo-popup);  width: auto; }

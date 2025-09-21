@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# (Optionnel mais utile) Autoriser Calendly côté prod
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://assets.calendly.com; connect-src 'self' https://calendly.com https://assets.calendly.com; img-src 'self' data: https://assets.calendly.com; style-src 'self' 'unsafe-inline' https://assets.calendly.com; frame-src https://calendly.com https://assets.calendly.com;"
