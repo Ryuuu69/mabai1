@@ -12,7 +12,7 @@ export const metadata = {
   description:
     "Sites & boutiques qui convertissent, campagnes qui ramènent, automatisations et agents IA qui qualifient et bookent. MVP en 14 jours, ROI mesuré.",
   openGraph: {
-    title: "MABAI - Solutions digitales qui convertissent",
+    title: "MABAI - Solutions digitales",
     description:
       "Sites & boutiques qui convertissent, campagnes qui ramènent, automatisations et agents IA qui qualifient et bookent.",
     type: "website",
