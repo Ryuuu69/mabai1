@@ -43,7 +43,7 @@ const services = [
   },
   {
     icon: Users,
-    title: "Social Media Management",
+    title: "Géstion Des Réseaux Sociaux",
     description: "Croissance organique pilotée par la donnée : gestion de vos réseaux, communauté et contenus pour engager et convertir.",
     href: "/services/social-media-management",
     highlights: [
@@ -55,7 +55,7 @@ const services = [
   },
   {
     icon: Edit,
-    title: "Création Contenu",
+    title: "Création De Contenu",
     description: "Contenu qui performe : posts & vidéos prêts pour l'organiques et les Ads.",
     href: "/services/content-creation",
     highlights: [
