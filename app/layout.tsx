@@ -65,7 +65,8 @@ export default function RootLayout({
       <head>
         <link rel="canonical" href={SITE_CONFIG.url} />
         <meta name="theme-color" content="#7C3AED" />
-        
+        <link rel="icon" href="/brand/favicon-mabai.svg" type="image/svg+xml" />
+
         {/* JSON-LD Schema */}
         <script
           type="application/ld+json"
