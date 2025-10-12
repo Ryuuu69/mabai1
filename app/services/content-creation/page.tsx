@@ -391,7 +391,6 @@ export default function ContentCreationAIPage() {
                         </li>
                       ))}
                     </ul>
-                    <div className="pt-2 text-sm text-[#C7CAD9]">
                       Plus de détails sur la page <Link className="underline hover:text-violet-300" href="/packs">Packs</Link>.
                     </div>
                   </CardContent>
@@ -421,13 +420,13 @@ export default function ContentCreationAIPage() {
                 Réserver votre session
               </GradientButton>
             </Link>
-            <Link href="/packs">
+            <Link href="/contact">
               <motion.button
                 className="px-8 py-3 text-violet-400 hover:text-violet-300 border border-violet-500 hover:bg-violet-500/10 rounded-lg transition-colors duration-200 inline-flex items-center gap-2"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Voir les packs
+                Obtenir un plan & un devis en 24h
                 <ArrowRight className="h-4 w-4" />
               </motion.button>
             </Link>
