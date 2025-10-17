@@ -34,6 +34,17 @@ const PROOFS = [
     caption: "Extrait Meta Ads (achat — 30 jours).",
   },
   {
+    id: "back2back",
+    title: "2 mois consécutifs en hausse",
+    subtitle: "Shopify + retargeting + upsells",
+    metrics: [
+      { label: "Ventes mai", value: "$65,925" },
+      { label: "Ventes juin", value: "$58,797" },
+    ],
+    image: "/proof/shopify-back2back.png",
+    caption: "Dashboard Shopify (mai/juin).",
+  },
+  {
     id: "shopify56k",
     title: "Shopify — 56 070 € sur 30 jours",
     subtitle: "Comparé au mois précédent : +219%",
