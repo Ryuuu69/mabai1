@@ -34,22 +34,23 @@ export default function HeroSection() {
         >
           <div className="text-center space-y-5">
             <Badge className="bg-violet-600/20 text-violet-300 border-violet-600/40">
-              Sites • Campagnes • Automatisations • IA
+              Sites • Contenu • Réseaux sociaux • Ads • IA
             </Badge>
 
             <h1 className="text-4xl md:text-5xl font-semibold">
-              Votre croissance, sans friction
+              Stop au bruit. Place aux résultats.
             </h1>
+
             <p className="text-[#C7CAD9] max-w-2xl mx-auto">
-              Un socle qui convertit, des campagnes pilotées aux KPIs, des automatisations qui tiennent.
+              Une exécution intégrée (site, contenu, social, Ads, IA) qui transforme l’attention en revenus mesurables.
             </p>
 
-            <div className="flex flex-wrap gap-3 justify-center pt-2">
+            {/* Bouton unique centré */}
+            <div className="flex justify-center pt-2">
               <Button asChild size="lg" className="px-8 bg-violet-600 hover:bg-violet-500">
-                <Link href="/rdv">Prendre un RDV</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="px-8 border-violet-500 text-violet-400 hover:bg-violet-500/10">
-                <Link href="/contact">Obtenir un plan & un devis en 24h</Link>
+                <Link href="/rdv" aria-label="Prendre un rendez-vous avec MABAI">
+                  Prendre un RDV
+                </Link>
               </Button>
             </div>
           </div>
