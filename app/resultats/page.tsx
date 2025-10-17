@@ -9,32 +9,30 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { X } from "lucide-react";
 
-// Assets are expected under /public/proof/... and /public/demos/...
+/**
+ * Assets attendus :
+ * - /public/proof/meta-roas-12x.png
+ * - /public/proof/shopify-56k.png
+ * - /public/demos/rieges-cover.jpg
+ * - /public/demos/rieges-demo.mp4
+ * - /public/demos/krok-cover.jpg (si tu l’utilises)
+ * - /public/demos/krok-demo.mp4
+ */
+
 const PROOFS = [
   {
-    id: "roas89k",
-    title: "Campagne e-commerce — +$88.9k CA incrémental",
-    subtitle: "Meta Ads + landing optimisée",
+    id: "meta12x",
+    title: "Meta Ads — ROAS 12.56× sur 30 jours",
+    subtitle: "Tableau de campagne : $1,644.98 dépensés → $20,663.95 de ventes",
     metrics: [
-      { label: "ROAS moyen", value: "12.97x" },
-      { label: "Coût/achat", value: "$7.84" },
-      { label: "Achats", value: "875" },
+      { label: "ROAS moyen", value: "12.56×" },
+      { label: "ROAS site", value: "12.46×" },
+      { label: "Dépenses", value: "$1,644.98" },
+      { label: "Ventes", value: "$20,663.95" },
     ],
-    image: "/proof/roas-table.png",
-    caption: "Extrait Meta Ads (30 j).",
+    image: "/proof/meta-roas-12x.png",
+    caption: "Extrait Meta Ads (achat — 30 jours).",
   },
-  {
-    id: "back2back",
-    title: "2 mois consécutifs en hausse",
-    subtitle: "Shopify + retargeting + upsells",
-    metrics: [
-      { label: "Ventes mai", value: "$65,925" },
-      { label: "Ventes juin", value: "$58,797" },
-    ],
-    image: "/proof/shopify-back2back.png",
-    caption: "Dashboard Shopify (mai/juin).",
-  },
-  // 🔁 Remplacement de “Ils nous font confiance” par la capture Shopify
   {
     id: "shopify56k",
     title: "Shopify — 56 070 € sur 30 jours",
@@ -43,26 +41,27 @@ const PROOFS = [
       { label: "Total sales", value: "€56 070.50" },
       { label: "Croissance", value: "+219%" },
     ],
-    image: "/proof/shopify-56k.png", // place l’image ici : /public/proof/shopify-56k.png
-    caption: "Capture Shopify (Last month vs May 1–May 31, 2023).",
+    image: "/proof/shopify-56k.png",
+    caption: "Dashboard Shopify (Last month vs May 1–May 31, 2023).",
   },
 ];
 
 const DEMOS = [
+  // ✅ Remplacement d’ALP par Les Rièges
   {
-    id: "alp",
-    client: "ALP Plomberie",
+    id: "rieges",
+    client: "Institut de beauté Les Rièges",
     title: "Site vitrine + prise de RDV",
-    cover: "/demos/alp-cover.jpg",
-    url: "https://…",
-    video: "https://www.youtube.com/embed/XXXXXXXX",
+    cover: "/demos/rieges-cover.jpg",
+    url: "https://www.institut-rieges.fr/",
+    video: "/demos/rieges-demo.mp4", // vidéo locale (s’ouvre dans la modale)
   },
   {
     id: "krok",
     client: "KROK",
     title: "Commande en ligne + Stripe",
     cover: "/demos/krok-cover.jpg",
-    url: "https://…",
+    url: "https://krokburger.fr",
     video: "/demos/krok-demo.mp4",
   },
 ];
@@ -108,7 +107,6 @@ function ProofGallery({ items }: { items: ProofItem[] }) {
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 33vw"
-                    priority={false}
                   />
                 ) : (
                   <div className="absolute inset-0 bg-zinc-800 animate-pulse" />
@@ -120,7 +118,7 @@ function ProofGallery({ items }: { items: ProofItem[] }) {
               {item.subtitle && (
                 <div className="text-sm text-zinc-400 mt-1">{item.subtitle}</div>
               )}
-              {Array.isArray(item.metrics) && item.metrics.length > 0 && (
+              {!!item.metrics?.length && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {item.metrics.map((m, idx) => (
                     <span
@@ -195,12 +193,6 @@ function DemoGrid({ items }: { items: DemoItem[] }) {
   const onClose = useCallback(() => setOpenId(null), []);
   useEscClose(Boolean(openId), onClose);
 
-  const isEmbed = (src?: string) =>
-    !!src &&
-    (src.includes("youtube.com") ||
-      src.includes("youtu.be") ||
-      src.includes("vimeo.com"));
-
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -268,20 +260,14 @@ function DemoGrid({ items }: { items: DemoItem[] }) {
             </button>
             <Card className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60">
               <div className="relative aspect-[16/10] w-full">
-                {isEmbed(openItem.video) ? (
-                  <iframe
-                    src={openItem.video}
-                    title={openItem.title}
-                    className="absolute inset-0 w-full h-full"
-                    allow="autoplay; encrypted-media; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : openItem.video ? (
+                {/* Vidéo locale, pas d’embed */}
+                {openItem.video ? (
                   <video
                     src={openItem.video}
                     className="absolute inset-0 w-full h-full"
                     controls
                     playsInline
+                    preload="metadata"
                   />
                 ) : (
                   <div className="absolute inset-0 bg-zinc-800" />
@@ -374,7 +360,7 @@ export default function ResultsPage() {
         <Container>
           <div className="text-center">
             <Button asChild size="lg" className="bg-violet-600 hover:bg-violet-500 px-8">
-              <Link href="/contact">Obtenir un plan & un devis en 24h</Link>
+              <Link href="/rdv">Prendre un RDV</Link>
             </Button>
           </div>
         </Container>
