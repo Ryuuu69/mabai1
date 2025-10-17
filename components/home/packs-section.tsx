@@ -30,9 +30,9 @@ export function PacksSection() {
                   {p.features.map((f) => <li key={f}>{f}</li>)}
                 </ul>
                 <div className="pt-4">
-                  <Link href="/packs">
+                  <Link href="/contact">
                     <Button variant="outline" className="w-full border-violet-500 text-violet-400 hover:bg-violet-500/10">
-                      Voir les packs
+                      Obtenir un plan & un devis en 24h
                     </Button>
                   </Link>
                 </div>

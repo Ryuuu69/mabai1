@@ -48,13 +48,8 @@ export default function HeroSection() {
               <Button asChild size="lg" className="px-8 bg-violet-600 hover:bg-violet-500">
                 <Link href="/rdv">Prendre un RDV</Link>
               </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="px-8 border-violet-500 text-violet-400 hover:bg-violet-500/10"
-              >
-                <Link href="/packs">Voir les packs</Link>
+              <Button asChild size="lg" variant="outline" className="px-8 border-violet-500 text-violet-400 hover:bg-violet-500/10">
+                <Link href="/contact">Obtenir un plan & un devis en 24h</Link>
               </Button>
             </div>
           </div>

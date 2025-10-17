@@ -16,16 +16,15 @@ type NavItem = { name: string; href: string };
 
 const navigation: NavItem[] = [
   { name: "Services", href: "/#services" },
-  { name: "Packs", href: "/packs" }, // Keep Packs
-  { name: "Résultats", href: "/resultats" }, // Keep Résultats
-  { name: "À propos", href: "/a-propos" }, // Keep À propos
+  { name: "RǸsultats", href: "/resultats" }, // Keep RǸsultats
+  { name: "�? propos", href: "/a-propos" }, // Keep �? propos
   { name: "Contact", href: "/contact" }, // Keep Contact
 ];
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Empêche le scroll de l’arrière-plan quand le menu mobile est ouvert
+  // EmpǦche le scroll de l�?Tarri��re-plan quand le menu mobile est ouvert
   useEffect(() => {
     if (!mobileMenuOpen) return;
     const prev = document.body.style.overflow;
@@ -35,7 +34,7 @@ export function Header() {
     };
   }, [mobileMenuOpen]);
 
-  // Échap pour fermer le menu mobile
+  // �%chap pour fermer le menu mobile
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setMobileMenuOpen(false);
@@ -52,10 +51,10 @@ export function Header() {
       )}
     >
       <Container>
-        {/* ↑↑↑ Mobile: h-16 (inchangé) | Desktop: lg:h-20 pour laisser place au logo */}
+        {/* ��'��'��' Mobile: h-16 (inchangǸ) | Desktop: lg:h-20 pour laisser place au logo */}
         <nav className="flex h-16 lg:h-20 items-center justify-between" aria-label="Menu principal">
           {/* Logo header */}
-          <Link href="/" aria-label="Aller à l’accueil" className="flex items-center">
+          <Link href="/" aria-label="Aller �� l�?Taccueil" className="flex items-center">
             <BrandLogo context="header" />
           </Link>
 
@@ -102,14 +101,14 @@ export function Header() {
         </nav>
       </Container>
 
-      {/* MENU MOBILE via Portal, plein écran */}
+      {/* MENU MOBILE via Portal, plein Ǹcran */}
       {mobileMenuOpen &&
         typeof window !== "undefined" &&
         createPortal(
           <div id="mobile-menu" className="fixed inset-0 z-[100]" role="dialog" aria-modal="true">
-            {/* Backdrop qui masque l’arrière-plan */}
+            {/* Backdrop qui masque l�?Tarri��re-plan */}
             <button
-              aria-label="Fermer le menu (arrière-plan)"
+              aria-label="Fermer le menu (arri��re-plan)"
               className="absolute inset-0 bg-black/60 supports-[backdrop-filter]:backdrop-blur-[2px]"
               onClick={() => setMobileMenuOpen(false)}
             />
@@ -122,7 +121,7 @@ export function Header() {
                     href="/"
                     className="-m-1.5 p-1.5"
                     onClick={() => setMobileMenuOpen(false)}
-                    aria-label="Aller à l’accueil"
+                    aria-label="Aller �� l�?Taccueil"
                   >
                     <BrandLogo context="header" />
                   </Link>
@@ -173,3 +172,4 @@ export function Header() {
     </header>
   );
 }
+

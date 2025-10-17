@@ -3,7 +3,6 @@ import HeroSection from "@/components/home/hero-section";
 import { ServicesSection } from "@/components/home/services-section";
 import { DemosSection } from "@/components/home/demos-section";
 import { FAQSection } from "@/components/home/faq-section";
-import { PacksSection } from "@/components/home/packs-section";
 import { ResultsSection } from "@/components/home/results-section";
 import { AboutSection } from "@/components/home/about-section";
 
@@ -26,7 +25,6 @@ export default function HomePage() {
       <HeroSection />
       <ServicesSection />
       <DemosSection />
-      <PacksSection />
       <ResultsSection />
       <AboutSection />
       <FAQSection />
