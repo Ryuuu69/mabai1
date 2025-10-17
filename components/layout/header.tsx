@@ -16,8 +16,8 @@ type NavItem = { name: string; href: string };
 
 const navigation: NavItem[] = [
   { name: "Services", href: "/#services" },
-  { name: "RǸsultats", href: "/resultats" }, // Keep RǸsultats
-  { name: "�? propos", href: "/a-propos" }, // Keep �? propos
+  { name: "Résultats", href: "/resultats" }, // Keep RǸsultats
+  { name: "à propos", href: "/a-propos" }, // Keep �? propos
   { name: "Contact", href: "/contact" }, // Keep Contact
 ];
 
