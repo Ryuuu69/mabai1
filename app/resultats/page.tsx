@@ -8,6 +8,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { X } from "lucide-react";
+
 // Assets are expected under /public/proof/... and /public/demos/...
 const PROOFS = [
   {
@@ -33,14 +34,20 @@ const PROOFS = [
     image: "/proof/shopify-back2back.png",
     caption: "Dashboard Shopify (mai/juin).",
   },
+  // 🔁 Remplacement de “Ils nous font confiance” par la capture Shopify
   {
-    id: "brands",
-    title: "Ils nous font confiance",
-    subtitle: "Sélection de marques accompagnées",
-    image: "/proof/brands-wall.png",
-    caption: "Logos.",
+    id: "shopify56k",
+    title: "Shopify — 56 070 € sur 30 jours",
+    subtitle: "Comparé au mois précédent : +219%",
+    metrics: [
+      { label: "Total sales", value: "€56 070.50" },
+      { label: "Croissance", value: "+219%" },
+    ],
+    image: "/proof/shopify-56k.png", // place l’image ici : /public/proof/shopify-56k.png
+    caption: "Capture Shopify (Last month vs May 1–May 31, 2023).",
   },
 ];
+
 const DEMOS = [
   {
     id: "alp",
@@ -59,8 +66,10 @@ const DEMOS = [
     video: "/demos/krok-demo.mp4",
   },
 ];
+
 type ProofItem = typeof PROOFS[number];
 type DemoItem = typeof DEMOS[number];
+
 function useEscClose(enabled: boolean, onClose: () => void) {
   useEffect(() => {
     if (!enabled) return;
@@ -71,11 +80,13 @@ function useEscClose(enabled: boolean, onClose: () => void) {
     return () => window.removeEventListener("keydown", onKey);
   }, [enabled, onClose]);
 }
+
 function ProofGallery({ items }: { items: ProofItem[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const openItem = items.find((i) => i.id === openId);
   const onClose = useCallback(() => setOpenId(null), []);
   useEscClose(Boolean(openId), onClose);
+
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -129,6 +140,7 @@ function ProofGallery({ items }: { items: ProofItem[] }) {
           </Card>
         ))}
       </div>
+
       {openItem && (
         <div
           className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
@@ -176,13 +188,19 @@ function ProofGallery({ items }: { items: ProofItem[] }) {
     </>
   );
 }
+
 function DemoGrid({ items }: { items: DemoItem[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const openItem = items.find((i) => i.id === openId);
   const onClose = useCallback(() => setOpenId(null), []);
   useEscClose(Boolean(openId), onClose);
+
   const isEmbed = (src?: string) =>
-    !!src && (src.includes("youtube.com") || src.includes("youtu.be") || src.includes("vimeo.com"));
+    !!src &&
+    (src.includes("youtube.com") ||
+      src.includes("youtu.be") ||
+      src.includes("vimeo.com"));
+
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -229,6 +247,7 @@ function DemoGrid({ items }: { items: DemoItem[] }) {
           </Card>
         ))}
       </div>
+
       {openItem && (
         <div
           className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
@@ -279,6 +298,7 @@ function DemoGrid({ items }: { items: DemoItem[] }) {
     </>
   );
 }
+
 export default function ResultsPage() {
   const KPIS = [
     "+40% Taux de conversion",
@@ -287,6 +307,7 @@ export default function ResultsPage() {
     "x2 Leads qualifiés",
     "+120% Reach social",
   ];
+
   return (
     <div className="py-16 lg:py-24">
       {/* Hero compact */}
@@ -310,12 +331,14 @@ export default function ResultsPage() {
           </motion.div>
         </Container>
       </section>
+
       {/* Proof gallery */}
       <section className="mb-16">
         <Container>
           <ProofGallery items={PROOFS} />
         </Container>
       </section>
+
       {/* KPI callout */}
       <section className="mb-16">
         <Container>
@@ -333,6 +356,7 @@ export default function ResultsPage() {
           </Card>
         </Container>
       </section>
+
       {/* Demos */}
       <section className="mb-16">
         <Container>
@@ -344,6 +368,7 @@ export default function ResultsPage() {
           <DemoGrid items={DEMOS} />
         </Container>
       </section>
+
       {/* CTA */}
       <section>
         <Container>
