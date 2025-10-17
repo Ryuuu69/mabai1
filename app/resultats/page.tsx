@@ -61,14 +61,14 @@ const DEMOS = [
     id: "rieges",
     client: "Institut de beauté Les Rièges",
     title: "Site vitrine + prise de RDV",
-    cover: "/demos/rieges-cover.jpg",
+    cover: "/demos/rieges-cover.svg",
     url: "https://institut-les-rieges.netlify.app/", // corrige avec https://
   },
   {
     id: "krok",
     client: "KROK",
     title: "Commande en ligne + Stripe",
-    cover: "/demos/krok-cover.jpg",
+    cover: "/demos/krok-cover.svg",
     url: "https://krokburger.fr",
   },
 ];
