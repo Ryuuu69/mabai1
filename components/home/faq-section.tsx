@@ -62,23 +62,6 @@ const faqData = [
     ]
   },
   {
-    category: "Tarifs & Business Model",
-    questions: [
-      {
-        question: "Quel budget prévoir pour commencer ?",
-        answer: "Setup initial : 3-8K€ selon la complexité. Puis abonnement mensuel 500-2000€/mois pour l'accompagnement et les optimisations. Budget pub à prévoir en plus : minimum 1000€/mois pour tester efficacement."
-      },
-      {
-        question: "Pourquoi un abonnement mensuel ?",
-        answer: "Le digital évolue vite. Un site livré sans suivi perd en performance. L'abonnement inclut : optimisations continues, nouveaux tests A/B, évolutions techniques, support prioritaire. C'est un partenariat long terme, pas juste une prestation."
-      },
-      {
-        question: "Je peux arrêter quand je veux ?",
-        answer: "Oui, préavis de 30 jours. Après 6 mois, vous récupérez tous les codes sources et accès. On fait même une passation avec votre équipe ou nouveau prestataire. Pas de rétention artificielle."
-      }
-    ]
-  },
-  {
     category: "Secteurs & Spécialités",
     questions: [
       {
