@@ -11,12 +11,10 @@ import { X } from "lucide-react";
 
 /**
  * Assets attendus :
- * - /public/proof/meta-roas-12x.png
- * - /public/proof/shopify-56k.png
+ * - /public/proof/meta-roas-12x.png (ou .svg si tu gardes ce format)
+ * - /public/proof/shopify-56k.png  (ou .svg)
  * - /public/demos/rieges-cover.jpg
- * - /public/demos/rieges-demo.mp4
- * - /public/demos/krok-cover.jpg (si tu l’utilises)
- * - /public/demos/krok-demo.mp4
+ * - /public/demos/krok-cover.jpg
  */
 
 const PROOFS = [
@@ -30,7 +28,7 @@ const PROOFS = [
       { label: "Dépenses", value: "$1,644.98" },
       { label: "Ventes", value: "$20,663.95" },
     ],
-    image: "/proof/meta-roas-12x.png",
+    image: "/proof/meta-roas-12x.svg",
     caption: "Extrait Meta Ads (achat — 30 jours).",
   },
   {
@@ -41,7 +39,7 @@ const PROOFS = [
       { label: "Ventes mai", value: "$65,925" },
       { label: "Ventes juin", value: "$58,797" },
     ],
-    image: "/proof/shopify-back2back.png",
+    image: "/proof/shopify-back2back.svg",
     caption: "Dashboard Shopify (mai/juin).",
   },
   {
@@ -49,23 +47,22 @@ const PROOFS = [
     title: "Shopify — 56 070 € sur 30 jours",
     subtitle: "Comparé au mois précédent : +219%",
     metrics: [
-      { label: "Total sales", value: "€56 070.50" },
+      { label: "Total des Ventes", value: "€56 070.50" },
       { label: "Croissance", value: "+219%" },
     ],
-    image: "/proof/shopify-56k.png",
-    caption: "Dashboard Shopify (Last month vs May 1–May 31, 2023).",
+    image: "/proof/shopify-56k.svg",
+    caption: "Dashboard Shopify (Dernier Mois vs Mai 1–Mai 31, 2023).",
   },
 ];
 
+// ✅ Démos SANS vidéo. Les cartes sont cliquables (ouvrent le site).
 const DEMOS = [
-  // ✅ Remplacement d’ALP par Les Rièges
   {
     id: "rieges",
     client: "Institut de beauté Les Rièges",
     title: "Site vitrine + prise de RDV",
     cover: "/demos/rieges-cover.jpg",
-    url: "https://www.institut-rieges.fr/",
-    video: "/demos/rieges-demo.mp4", // vidéo locale (s’ouvre dans la modale)
+    url: "https://institut-les-rieges.netlify.app/", // corrige avec https://
   },
   {
     id: "krok",
@@ -73,7 +70,6 @@ const DEMOS = [
     title: "Commande en ligne + Stripe",
     cover: "/demos/krok-cover.jpg",
     url: "https://krokburger.fr",
-    video: "/demos/krok-demo.mp4",
   },
 ];
 
@@ -198,20 +194,20 @@ function ProofGallery({ items }: { items: ProofItem[] }) {
   );
 }
 
+// ✅ Démos : cartes cliquables (pas de bouton, pas de vidéo)
 function DemoGrid({ items }: { items: DemoItem[] }) {
-  const [openId, setOpenId] = useState<string | null>(null);
-  const openItem = items.find((i) => i.id === openId);
-  const onClose = useCallback(() => setOpenId(null), []);
-  useEscClose(Boolean(openId), onClose);
-
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {items.map((item) => (
-          <Card
-            key={item.id}
-            className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:border-zinc-700 transition-colors"
-          >
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {items.map((item) => (
+        <Link
+          key={item.id}
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group focus:outline-none"
+          aria-label={`Ouvrir le site : ${item.client}`}
+        >
+          <Card className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50 transition-colors group-hover:border-zinc-700">
             <div className="relative aspect-[16/10] w-full">
               {item.cover ? (
                 <Image
@@ -227,72 +223,14 @@ function DemoGrid({ items }: { items: DemoItem[] }) {
             </div>
             <div className="p-4">
               <div className="text-xs text-zinc-400">{item.client}</div>
-              <div className="text-white font-semibold">{item.title}</div>
-              <div className="mt-3 flex flex-wrap gap-3">
-                {item.url && (
-                  <Button asChild variant="outline" className="border-zinc-700 text-zinc-200">
-                    <a href={item.url} target="_blank" rel="noopener noreferrer">
-                      Voir le site
-                    </a>
-                  </Button>
-                )}
-                {item.video && (
-                  <Button
-                    variant="default"
-                    className="bg-violet-600 hover:bg-violet-500"
-                    onClick={() => setOpenId(item.id)}
-                  >
-                    Voir la démo
-                  </Button>
-                )}
+              <div className="text-white font-semibold group-hover:underline">
+                {item.title}
               </div>
             </div>
           </Card>
-        ))}
-      </div>
-
-      {openItem && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-          onClick={onClose}
-        >
-          <div
-            className="relative w-full max-w-5xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={onClose}
-              aria-label="Fermer"
-              className="absolute -top-10 right-0 text-zinc-300 hover:text-white"
-            >
-              <X className="h-6 w-6" />
-            </button>
-            <Card className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60">
-              <div className="relative aspect-[16/10] w-full">
-                {/* Vidéo locale, pas d’embed */}
-                {openItem.video ? (
-                  <video
-                    src={openItem.video}
-                    className="absolute inset-0 w-full h-full"
-                    controls
-                    playsInline
-                    preload="metadata"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-zinc-800" />
-                )}
-              </div>
-              <div className="p-4">
-                <div className="text-white font-semibold">{openItem.title}</div>
-                <div className="text-sm text-zinc-400 mt-1">{openItem.client}</div>
-              </div>
-            </Card>
-          </div>
-        </div>
-      )}
-    </>
+        </Link>
+      ))}
+    </div>
   );
 }
 
@@ -359,7 +297,7 @@ export default function ResultsPage() {
         <Container>
           <div className="mb-6 text-center">
             <h2 className="text-2xl md:text-3xl font-semibold text-white">
-              Exemples de sites & démos
+              Exemples de sites
             </h2>
           </div>
           <DemoGrid items={DEMOS} />
