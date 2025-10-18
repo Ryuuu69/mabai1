@@ -11,10 +11,9 @@ import {
   Zap, 
   Users, 
   Shield, 
-  TrendingUp, 
-  CheckCircle, 
-  ArrowRight, 
-  Clock, 
+  TrendingUp,
+  CheckCircle,
+  Clock,
   LineChart,
   Apple,
   Play
@@ -478,16 +477,6 @@ export default function MobileAppDevelopmentPage() {
               <Button size="lg" className="px-8 bg-gradient-to-r from-violet-500 to-violet-700 hover:from-violet-600 hover:to-violet-800 text-white">
                 Réserver mon audit gratuit
               </Button>
-            </Link>
-            <Link href="/contact">
-              <motion.button
-                className="px-8 py-3 text-violet-400 hover:text-violet-300 border border-violet-500 hover:bg-violet-500/10 rounded-lg transition-colors duration-200 inline-flex items-center gap-2"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Obtenir un plan & un devis en 24h
-                <ArrowRight className="h-4 w-4" />
-              </motion.button>
             </Link>
           </div>
         </motion.div>

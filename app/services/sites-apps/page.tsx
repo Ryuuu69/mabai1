@@ -12,7 +12,6 @@ import {
   Users,
   ShoppingCart,
   CheckCircle,
-  ArrowRight,
   Clock,
   Euro,
   Laptop,
@@ -437,16 +436,6 @@ export default function SitesAppsPage() {
               <GradientButton size="lg" className="px-8">
                 Réserver mon audit gratuit
               </GradientButton>
-            </Link>
-            <Link href="/contact">
-              <motion.button
-                className="px-8 py-3 text-violet-400 hover:text-violet-300 border border-violet-500 hover:bg-violet-500/10 rounded-lg transition-colors duration-200 inline-flex items-center gap-2"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Obtenir un plan & un devis en 24h
-                <ArrowRight className="h-4 w-4" />
-              </motion.button>
             </Link>
           </div>
         </motion.div>

@@ -1,9 +1,6 @@
 "use client";
 import { Container } from "@/components/ui/container";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-
 const packs = [
   { name: "Starter", price: "2 500€", features: ["Landing page", "Formulaire + CRM", "Mise en ligne"] },
   { name: "Growth", price: "5 000€", features: ["Mini-site", "Automatisations", "Suivi conversion"] },
@@ -29,13 +26,6 @@ export function PacksSection() {
                 <ul className="text-sm text-[#C7CAD9] space-y-2 list-disc pl-5">
                   {p.features.map((f) => <li key={f}>{f}</li>)}
                 </ul>
-                <div className="pt-4">
-                  <Link href="/contact">
-                    <Button variant="outline" className="w-full border-violet-500 text-violet-400 hover:bg-violet-500/10">
-                      Obtenir un plan & un devis en 24h
-                    </Button>
-                  </Link>
-                </div>
               </CardContent>
             </Card>
           ))}
