@@ -9,7 +9,7 @@ export const SITE_CONFIG = {
     whatsapp: "https://wa.me/33123456789",
     email: "contact@mabai.fr",
     phone: "+33 7 45 65 43 81",
-    demoPhone: "+33 1 23 45 67 90",
+    demoPhone: "+33 4 11 78 93 25",
   }
 };
 
@@ -28,7 +28,7 @@ export const COMPANY_INFO = {
   name: "MABAI",
   legalName: "MABAI SAS",
   address: "25 rue Aristide Maillol, 34000 Montpellier",
-  siret: "12345678901234",
+  siret: "254628605214",
   vatNumber: "FR12345678901",
 };
 
