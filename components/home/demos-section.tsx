@@ -3,27 +3,88 @@
 import { Container } from "@/components/ui/container";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Phone, Play, Volume2 } from "lucide-react";
+import { PhoneOff, Play, Volume2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { trackEvent, TRACKING_EVENTS, DEMO_CONFIG } from "@/lib/constants";
+import { useEffect, useRef, useState } from "react";
+import { trackEvent, TRACKING_EVENTS } from "@/lib/constants";
 
 export function DemosSection() {
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  // === Config Vapi (mabai) ===
+  const PUBLIC_KEY = "53845ee0-60ca-4269-bcdb-20ac91f1bb5d";
+  const ASSISTANT_ID = "aff6b1c8-325f-48f1-8fa7-5f466144d066";
 
-  const handleCallClick = () => {
-    trackEvent(TRACKING_EVENTS.DEMO_CALL_CLICK, { 
-      demo_type: 'voice_agent',
-      phone: DEMO_CONFIG.voiceAgentPhone 
-    });
-    window.open(`tel:${DEMO_CONFIG.voiceAgentPhone}`);
+  // État UI
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [callActive, setCallActive] = useState(false);
+  const [starting, setStarting] = useState(false);
+
+  // Instance Vapi
+  const vapiRef = useRef<any>(null);
+
+  // Import du SDK côté client uniquement
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const mod = await import("@vapi-ai/web");
+        if (!mounted) return;
+        vapiRef.current = new mod.default(PUBLIC_KEY);
+
+        vapiRef.current.on("call-start", () => {
+          setStarting(false);
+          setCallActive(true);
+        });
+        vapiRef.current.on("call-end", () => {
+          setStarting(false);
+          setCallActive(false);
+        });
+        vapiRef.current.on("error", (e: any) => {
+          console.error("[Vapi] error:", e);
+          setStarting(false);
+          setCallActive(false);
+        });
+      } catch (err) {
+        console.error("[Vapi] init error:", err);
+      }
+    })();
+    return () => {
+      mounted = false;
+      try { vapiRef.current?.stop?.(); } catch {}
+    };
+  }, []);
+
+  // Toggle appel
+  const handleVoiceClick = async () => {
+    if (!vapiRef.current) return;
+
+    if (callActive || starting) {
+      // Raccrocher
+      trackEvent?.(TRACKING_EVENTS.DEMO_CALL_CLICK, { demo_type: "voice_agent", action: "stop" });
+      try {
+        await vapiRef.current.stop();
+      } catch (e) {
+        console.warn("[Vapi] stop error:", e);
+        setCallActive(false);
+      }
+      return;
+    }
+
+    // Démarrer
+    setStarting(true);
+    trackEvent?.(TRACKING_EVENTS.DEMO_CALL_CLICK, { demo_type: "voice_agent", action: "start" });
+    try {
+      await vapiRef.current.start(ASSISTANT_ID);
+    } catch (e) {
+      console.error("[Vapi] start error:", e);
+      setStarting(false);
+    }
   };
 
   const handleVideoPlay = () => {
     setIsVideoPlaying(true);
-    trackEvent(TRACKING_EVENTS.DEMO_VIDEO_PLAY, { 
-      demo_type: 'workflow_video',
-      video_src: DEMO_CONFIG.workflowVideoSrc 
+    trackEvent?.(TRACKING_EVENTS.DEMO_VIDEO_PLAY, {
+      demo_type: "workflow_video",
+      video_src: "mabai_workflow_demo",
     });
   };
 
@@ -71,29 +132,37 @@ export function DemosSection() {
                   Agent Vocal IA
                 </CardTitle>
                 <CardDescription className="text-[#C7CAD9]">
-                  Appelez notre agent IA qui vous qualifiera et bookera un RDV automatiquement
+                  Parlez en direct avec notre agent IA — qualification & prise de RDV automatiques
                 </CardDescription>
               </CardHeader>
+
               <CardContent className="text-center">
-                <div className="space-y-4 mb-8">
-                  <div className="p-4 bg-[#0F1222] rounded-lg border border-[#1E2235]">
-                    <p className="text-[#C7CAD9] text-sm mb-2">Numéro de démo :</p>
-                    <p className="text-white font-mono text-lg">{DEMO_CONFIG.voiceAgentPhone}</p>
-                  </div>
-                  <div className="text-xs text-[#C7CAD9]">
-                    <p>• Disponible 24/7</p>
-                    <p>• Qualification automatique</p>
-                    <p>• Booking direct dans le calendrier</p>
-                  </div>
-                </div>
-                <Button 
-                  onClick={handleCallClick}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                <Button
+                  onClick={handleVoiceClick}
+                  className={`w-full ${
+                    callActive || starting
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-violet-600 hover:bg-violet-700"
+                  } text-white`}
                   size="lg"
+                  disabled={starting}
                 >
-                  <Phone className="mr-2 h-5 w-5" />
-                  Appeler maintenant
+                  {callActive || starting ? (
+                    <>
+                      <PhoneOff className="mr-2 h-5 w-5" />
+                      {starting ? "Connexion…" : "Raccrocher"}
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="mr-2 h-5 w-5" />
+                      Parler avec l’agent
+                    </>
+                  )}
                 </Button>
+
+                <div className="mt-4 text-xs text-[#A7ABBE]">
+                  Autorisez l’accès au micro quand votre navigateur le demande.
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -117,44 +186,40 @@ export function DemosSection() {
                   Voyez comment un lead devient client grâce à nos automatisations
                 </CardDescription>
               </CardHeader>
+
               <CardContent>
-                <div className="space-y-6">
-                  {/* Video placeholder */}
-                  <div className="relative aspect-video bg-[#0F1222] rounded-lg border border-[#1E2235] flex items-center justify-center">
-                    {!isVideoPlaying ? (
-                      <Button
-                        onClick={handleVideoPlay}
-                        variant="ghost"
-                        className="absolute inset-0 w-full h-full bg-black/50 hover:bg-black/70 transition-colors"
-                      >
-                        <div className="text-center">
-                          <div className="mx-auto mb-2 p-3 bg-violet-500 rounded-full">
-                            <Play className="h-6 w-6 text-white fill-white" />
-                          </div>
-                          <p className="text-white font-medium">Lancer la démo</p>
+                <div className="relative aspect-video bg-[#0F1222] rounded-lg border border-[#1E2235] flex items-center justify-center">
+                  {!isVideoPlaying ? (
+                    <Button
+                      onClick={handleVideoPlay}
+                      variant="ghost"
+                      className="absolute inset-0 w-full h-full bg-black/50 hover:bg-black/70 transition-colors"
+                    >
+                      <div className="text-center">
+                        <div className="mx-auto mb-2 p-3 bg-violet-500 rounded-full">
+                          <Play className="h-6 w-6 text-white fill-white" />
                         </div>
-                      </Button>
-                    ) : (
-                      <div className="text-center p-8">
-                        <div className="animate-pulse text-violet-400 mb-4">
-                          <Play className="h-12 w-12 mx-auto" />
-                        </div>
-                        <p className="text-white">Démo en cours...</p>
-                        <p className="text-[#C7CAD9] text-sm mt-2">
-                          Lead → Qualification → CRM → SMS/Email → RDV
-                        </p>
+                        <p className="text-white font-medium">Lancer la démo</p>
                       </div>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="text-xs text-[#C7CAD9]">
-                      <p>• Lead capturé automatiquement</p>
-                      <p>• Envoi dans le CRM en temps réel</p>
-                      <p>• Séquences SMS/Email personnalisées</p>
-                      <p>• Rappels et follow-up automatiques</p>
+                    </Button>
+                  ) : (
+                    <div className="text-center p-8">
+                      <div className="animate-pulse text-violet-400 mb-4">
+                        <Play className="h-12 w-12 mx-auto" />
+                      </div>
+                      <p className="text-white">Démo en cours...</p>
+                      <p className="text-[#C7CAD9] text-sm mt-2">
+                        Lead → Qualification → CRM → SMS/Email → RDV
+                      </p>
                     </div>
-                  </div>
+                  )}
+                </div>
+
+                <div className="text-xs text-[#C7CAD9] space-y-1 mt-6">
+                  <p>• Lead capturé automatiquement</p>
+                  <p>• Envoi dans le CRM en temps réel</p>
+                  <p>• Séquences SMS/Email personnalisées</p>
+                  <p>• Rappels et follow-up automatiques</p>
                 </div>
               </CardContent>
             </Card>
