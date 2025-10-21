@@ -7,6 +7,7 @@ import { PhoneOff, Play, Volume2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { trackEvent, TRACKING_EVENTS } from "@/lib/constants";
+import { createVapiClient, VapiClient } from "@/lib/vapi-client";
 
 export function DemosSection() {
   // === Config Vapi (mabai) ===
@@ -18,44 +19,68 @@ export function DemosSection() {
   const [callActive, setCallActive] = useState(false);
   const [starting, setStarting] = useState(false);
 
-  // Instance Vapi
-  const vapiRef = useRef<any>(null);
+  // SDK state
+  const vapiRef = useRef<VapiClient | null>(null);
+  const [sdkReady, setSdkReady] = useState(false);
+  const [sdkError, setSdkError] = useState<string | null>(null);
 
-  // Import du SDK côté client uniquement
+  // Chargement SDK côté client (NPM -> fallback CDN si besoin)
   useEffect(() => {
     let mounted = true;
-    (async () => {
-      try {
-        const mod = await import("@vapi-ai/web");
-        if (!mounted) return;
-        vapiRef.current = new mod.default(PUBLIC_KEY);
+    setSdkReady(false);
+    setSdkError(null);
 
-        vapiRef.current.on("call-start", () => {
-          setStarting(false);
-          setCallActive(true);
-        });
-        vapiRef.current.on("call-end", () => {
-          setStarting(false);
-          setCallActive(false);
-        });
-        vapiRef.current.on("error", (e: any) => {
-          console.error("[Vapi] error:", e);
-          setStarting(false);
-          setCallActive(false);
-        });
-      } catch (err) {
-        console.error("[Vapi] init error:", err);
+    (async () => {
+      const { client, error } = await createVapiClient(PUBLIC_KEY);
+
+      if (!mounted) {
+        client?.stop?.();
+        client?.destroy?.();
+        return;
       }
+
+      if (!client) {
+        setSdkError(error ?? "SDK Vapi indisponible");
+        return;
+      }
+
+      vapiRef.current = client;
+      setSdkReady(true);
+
+      client.on("call-start", () => {
+        setStarting(false);
+        setCallActive(true);
+      });
+
+      client.on("call-end", () => {
+        setStarting(false);
+        setCallActive(false);
+      });
+
+      client.on("error", (e: any) => {
+        console.error("[Vapi] error:", e);
+        setStarting(false);
+        setCallActive(false);
+      });
     })();
+
     return () => {
       mounted = false;
-      try { vapiRef.current?.stop?.(); } catch {}
+      try {
+        vapiRef.current?.stop?.();
+        vapiRef.current?.destroy?.();
+      } catch {
+        // noop
+      }
     };
   }, []);
 
   // Toggle appel
   const handleVoiceClick = async () => {
-    if (!vapiRef.current) return;
+    if (!vapiRef.current) {
+      setSdkError((prev) => prev ?? "La démo vocale est temporairement indisponible.");
+      return;
+    }
 
     if (callActive || starting) {
       // Raccrocher
@@ -80,31 +105,23 @@ export function DemosSection() {
     }
   };
 
-  const handleVideoPlay = () => {
-    setIsVideoPlaying(true);
-    trackEvent?.(TRACKING_EVENTS.DEMO_VIDEO_PLAY, {
-      demo_type: "workflow_video",
-      video_src: "mabai_workflow_demo",
-    });
-  };
-
   return (
     <section id="demos" className="py-20 lg:py-28 bg-[#0F1222]">
       <Container>
         <div className="text-center mb-16">
-          <motion.h2 
+          <motion.h2
             className="text-4xl lg:text-5xl font-bold text-white mb-6"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            Testez nos solutions 
+            Testez nos solutions
             <span className="bg-gradient-to-r from-violet-400 to-violet-600 bg-clip-text text-transparent">
               {" "}en direct
             </span>
           </motion.h2>
-          <motion.p 
+          <motion.p
             className="text-xl text-[#C7CAD9] max-w-3xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -145,12 +162,22 @@ export function DemosSection() {
                       : "bg-violet-600 hover:bg-violet-700"
                   } text-white`}
                   size="lg"
-                  disabled={starting}
+                  disabled={starting || !sdkReady}
                 >
-                  {callActive || starting ? (
+                  {!sdkReady && !sdkError ? (
+                    <>
+                      <Volume2 className="mr-2 h-5 w-5" />
+                      Initialisation…
+                    </>
+                  ) : callActive || starting ? (
                     <>
                       <PhoneOff className="mr-2 h-5 w-5" />
                       {starting ? "Connexion…" : "Raccrocher"}
+                    </>
+                  ) : sdkError ? (
+                    <>
+                      <Volume2 className="mr-2 h-5 w-5" />
+                      Indisponible
                     </>
                   ) : (
                     <>
@@ -161,13 +188,15 @@ export function DemosSection() {
                 </Button>
 
                 <div className="mt-4 text-xs text-[#A7ABBE]">
-                  Autorisez l’accès au micro quand votre navigateur le demande.
+                  {sdkError
+                    ? sdkError
+                    : "Autorisez l’accès au micro quand votre navigateur le demande."}
                 </div>
               </CardContent>
             </Card>
           </motion.div>
 
-          {/* Demo Workflow */}
+          {/* Demo Workflow (placeholder) */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -191,7 +220,7 @@ export function DemosSection() {
                 <div className="relative aspect-video bg-[#0F1222] rounded-lg border border-[#1E2235] flex items-center justify-center">
                   {!isVideoPlaying ? (
                     <Button
-                      onClick={handleVideoPlay}
+                      onClick={() => setIsVideoPlaying(true)}
                       variant="ghost"
                       className="absolute inset-0 w-full h-full bg-black/50 hover:bg-black/70 transition-colors"
                     >
