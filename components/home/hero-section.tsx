@@ -19,8 +19,7 @@ export default function HeroSection() {
             "radial-gradient(900px 500px at 50% -10%, rgba(124,58,237,0.28), transparent 60%)",
         }}
       />
-
-      {/* Halo souris (décoratif) */}
+      {/* Halo souris */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <Spotlight color="rgba(124,58,237,0.12)" />
       </div>
@@ -37,8 +36,12 @@ export default function HeroSection() {
               Sites • Contenu • Réseaux sociaux • Ads • IA
             </Badge>
 
-            <h1 className="text-4xl md:text-5xl font-semibold">
-              Stop au bruit. Place aux résultats.
+            {/* Titre avec 2e ligne en violet */}
+            <h1 className="text-4xl md:text-6xl font-semibold leading-tight tracking-tight">
+              <span className="block text-white">Stop au bruit.</span>
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-violet-600">
+                Place aux résultats.
+              </span>
             </h1>
 
             <p className="text-[#C7CAD9] max-w-2xl mx-auto">
@@ -59,3 +62,4 @@ export default function HeroSection() {
     </section>
   );
 }
+
