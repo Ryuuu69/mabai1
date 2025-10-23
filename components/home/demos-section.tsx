@@ -9,9 +9,11 @@ import { useEffect, useRef, useState } from "react";
 import { trackEvent, TRACKING_EVENTS } from "@/lib/constants";
 import { createVapiClient, VapiClient } from "@/lib/vapi-client";
 
+// Si ton alias "@" n'est pas configuré dans tsconfig.json, remplace les imports "@/..." par des chemins relatifs.
+
 export function DemosSection() {
   // === Config Vapi (mabai) ===
-  const PUBLIC_KEY = "53845ee0-60ca-4269-bcdb-20ac91f1bb5d";
+  const PUBLIC_KEY   = "53845ee0-60ca-4269-bcdb-20ac91f1bb5d";
   const ASSISTANT_ID = "aff6b1c8-325f-48f1-8fa7-5f466144d066";
 
   // État UI
@@ -24,44 +26,57 @@ export function DemosSection() {
   const [sdkReady, setSdkReady] = useState(false);
   const [sdkError, setSdkError] = useState<string | null>(null);
 
-  // Chargement SDK côté client (NPM -> fallback CDN si besoin)
+  // Helper: supporte les 2 signatures de createVapiClient (client direct OU {client,error})
+  function resolveClient(result: any): { client: VapiClient | null; error?: string } {
+    if (!result) return { client: null, error: "SDK Vapi indisponible" };
+    // cas 1: client direct (a des méthodes start/stop/on)
+    if (typeof result?.start === "function" && typeof result?.on === "function") {
+      return { client: result as VapiClient };
+    }
+    // cas 2: objet { client, error }
+    if (result?.client || result?.error) {
+      return { client: result.client ?? null, error: result.error };
+    }
+    return { client: null, error: "SDK Vapi indisponible" };
+  }
+
+  // Chargement SDK côté client (NPM only recommandé)
   useEffect(() => {
     let mounted = true;
     setSdkReady(false);
     setSdkError(null);
 
     (async () => {
-      const { client, error } = await createVapiClient(PUBLIC_KEY);
+      try {
+        const res = await createVapiClient(PUBLIC_KEY);
+        if (!mounted) return;
 
-      if (!mounted) {
-        client?.stop?.();
-        client?.destroy?.();
-        return;
+        const { client, error } = resolveClient(res);
+        if (!client) {
+          setSdkError(error ?? "SDK Vapi indisponible");
+          return;
+        }
+
+        vapiRef.current = client;
+        setSdkReady(true);
+
+        client.on("call-start", () => {
+          setStarting(false);
+          setCallActive(true);
+        });
+        client.on("call-end", () => {
+          setStarting(false);
+          setCallActive(false);
+        });
+        client.on("error", (e: any) => {
+          console.error("[Vapi] error:", e);
+          setStarting(false);
+          setCallActive(false);
+        });
+      } catch (err) {
+        console.error("[Vapi] init error:", err);
+        setSdkError("SDK Vapi indisponible");
       }
-
-      if (!client) {
-        setSdkError(error ?? "SDK Vapi indisponible");
-        return;
-      }
-
-      vapiRef.current = client;
-      setSdkReady(true);
-
-      client.on("call-start", () => {
-        setStarting(false);
-        setCallActive(true);
-      });
-
-      client.on("call-end", () => {
-        setStarting(false);
-        setCallActive(false);
-      });
-
-      client.on("error", (e: any) => {
-        console.error("[Vapi] error:", e);
-        setStarting(false);
-        setCallActive(false);
-      });
     })();
 
     return () => {
@@ -77,28 +92,31 @@ export function DemosSection() {
 
   // Toggle appel
   const handleVoiceClick = async () => {
-    if (!vapiRef.current) {
+    const client = vapiRef.current;
+    if (!client) {
       setSdkError((prev) => prev ?? "La démo vocale est temporairement indisponible.");
       return;
     }
 
     if (callActive || starting) {
       // Raccrocher
-      trackEvent?.(TRACKING_EVENTS.DEMO_CALL_CLICK, { demo_type: "voice_agent", action: "stop" });
+      trackEvent?.(TRACKING_EVENTS?.DEMO_CALL_CLICK, { demo_type: "voice_agent", action: "stop" });
       try {
-        await vapiRef.current.stop();
+        await client.stop();
       } catch (e) {
         console.warn("[Vapi] stop error:", e);
+      } finally {
         setCallActive(false);
+        setStarting(false);
       }
       return;
     }
 
     // Démarrer
     setStarting(true);
-    trackEvent?.(TRACKING_EVENTS.DEMO_CALL_CLICK, { demo_type: "voice_agent", action: "start" });
+    trackEvent?.(TRACKING_EVENTS?.DEMO_CALL_CLICK, { demo_type: "voice_agent", action: "start" });
     try {
-      await vapiRef.current.start(ASSISTANT_ID);
+      await client.start(ASSISTANT_ID);
     } catch (e) {
       console.error("[Vapi] start error:", e);
       setStarting(false);
@@ -116,9 +134,9 @@ export function DemosSection() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            Testez nos solutions
+            Testez nos solutions{" "}
             <span className="bg-gradient-to-r from-violet-400 to-violet-600 bg-clip-text text-transparent">
-              {" "}en direct
+              en direct
             </span>
           </motion.h2>
           <motion.p
@@ -145,9 +163,7 @@ export function DemosSection() {
                 <div className="mx-auto mb-6 p-4 bg-gradient-to-r from-violet-500/10 to-violet-700/10 rounded-full border border-violet-500/20 w-fit">
                   <Volume2 className="h-8 w-8 text-violet-400" />
                 </div>
-                <CardTitle className="text-2xl text-white mb-2">
-                  Agent Vocal IA
-                </CardTitle>
+                <CardTitle className="text-2xl text-white mb-2">Agent Vocal IA</CardTitle>
                 <CardDescription className="text-[#C7CAD9]">
                   Parlez en direct avec notre agent IA — qualification & prise de RDV automatiques
                 </CardDescription>
@@ -208,9 +224,7 @@ export function DemosSection() {
                 <div className="mx-auto mb-6 p-4 bg-gradient-to-r from-violet-500/10 to-violet-700/10 rounded-full border border-violet-500/20 w-fit">
                   <Play className="h-8 w-8 text-violet-400" />
                 </div>
-                <CardTitle className="text-2xl text-white mb-2">
-                  Workflow Automatisé
-                </CardTitle>
+                <CardTitle className="text-2xl text-white mb-2">Workflow Automatisé</CardTitle>
                 <CardDescription className="text-[#C7CAD9]">
                   Voyez comment un lead devient client grâce à nos automatisations
                 </CardDescription>
